@@ -1,0 +1,25 @@
+   body {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 14px;
+    }
+    .container {
+        width: 700px;
+        margin: auto;
+    }
+    table th, table td {
+        padding: 8px 10px 8px;
+        text-align: left;
+    }
+    table th {
+        border-top: 1px solid #000;
+        border-bottom: 1px solid #000;
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+	.text-right{
+		text-align: right;
+	}
+	.display-flex{
+		display: flex;
+		justify-content: space-between;
+	}

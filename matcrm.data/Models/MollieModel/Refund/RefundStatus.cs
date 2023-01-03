@@ -1,0 +1,9 @@
+﻿namespace matcrm.data.Models.MollieModel.Refund {
+    public static class RefundStatus {
+        public const string Pending = "pending";
+        public const string Processing = "processing";
+        public const string Refunded = "refunded";
+        public const string Queued = "queued";
+        public const string Failed = "failed";
+    }
+}

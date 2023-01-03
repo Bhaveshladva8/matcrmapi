@@ -1,0 +1,129 @@
+﻿using System.Collections.Generic;
+using System.Net.Http;
+using System.Threading.Tasks;
+using matcrm.data.Extensions;
+using matcrm.data.Models.MollieModel.List;
+using matcrm.data.Models.MollieModel.Payment.Request;
+using matcrm.data.Models.MollieModel.Payment.Response;
+using matcrm.data.Models.MollieModel.Url;
+using matcrm.service.Services.Client;
+
+namespace matcrm.service.Services.Mollie.Client {
+    public class PaymentClient : BaseMollieClient, IPaymentClient {
+
+	    public PaymentClient(string apiKey, HttpClient httpClient = null) : base(apiKey, httpClient) { }
+
+        public async Task<PaymentResponse> CreatePaymentAsync(PaymentRequest paymentRequest, bool includeQrCode = false) {
+            if (!string.IsNullOrWhiteSpace(paymentRequest.ProfileId) || paymentRequest.Testmode.HasValue || paymentRequest.ApplicationFee != null) {
+                this.ValidateApiKeyIsOauthAccesstoken();
+            }
+
+            var queryParameters = this.BuildQueryParameters(
+                includeQrCode: includeQrCode);
+
+            return await this.PostAsync<PaymentResponse>($"payments{queryParameters.ToQueryString()}", paymentRequest).ConfigureAwait(false);
+        }
+
+        public async Task<PaymentResponse> GetPaymentAsync(string paymentId, bool testmode = false, bool includeQrCode = false, bool includeRemainderDetails = false, bool embedRefunds = false, bool embedChargebacks = false) {
+	        if (testmode) {
+	            this.ValidateApiKeyIsOauthAccesstoken();
+            }
+
+            var queryParameters = this.BuildQueryParameters(
+                testmode: testmode,
+                includeQrCode: includeQrCode,
+                includeRemainderDetails: includeRemainderDetails,
+                embedRefunds: embedRefunds,
+                embedChargebacks: embedChargebacks
+                );
+			return await this.GetAsync<PaymentResponse>($"payments/{paymentId}{queryParameters.ToQueryString()}").ConfigureAwait(false);
+		}
+
+		public async Task DeletePaymentAsync(string paymentId) {
+		    await this.DeleteAsync($"payments/{paymentId}").ConfigureAwait(false);
+		}
+
+        public async Task<PaymentResponse> GetPaymentAsync(UrlObjectLink<PaymentResponse> url) {
+            return await this.GetAsync(url).ConfigureAwait(false);
+        }
+
+        public async Task<ListResponse<PaymentResponse>> GetPaymentListAsync(UrlObjectLink<ListResponse<PaymentResponse>> url) {
+            return await this.GetAsync(url).ConfigureAwait(false);
+        }
+
+        public async Task<ListResponse<PaymentResponse>> GetPaymentListAsync(string from = null, int? limit = null, string profileId = null, bool testmode = false, bool includeQrCode = false, bool embedRefunds = false, bool embedChargebacks = false) {
+	        if (!string.IsNullOrWhiteSpace(profileId) || testmode) {
+	            this.ValidateApiKeyIsOauthAccesstoken();
+            }
+
+            var queryParameters = this.BuildQueryParameters(
+                profileId: profileId,
+                testmode: testmode,
+                includeQrCode: includeQrCode,
+                embedRefunds: embedRefunds,
+                embedChargebacks: embedChargebacks);
+
+            return await this.GetListAsync<ListResponse<PaymentResponse>>($"payments", from, limit, queryParameters).ConfigureAwait(false);
+		}
+
+        public async Task<PaymentResponse> UpdatePaymentAsync(string paymentId, PaymentUpdateRequest paymentUpdateRequest) {
+            return await this.PatchAsync<PaymentResponse>($"payments/{paymentId}", paymentUpdateRequest).ConfigureAwait(false);
+        }
+
+        private Dictionary<string, string> BuildQueryParameters(string profileId = null, bool testmode = false, bool includeQrCode = false, bool includeRemainderDetails = false, bool embedRefunds = false, bool embedChargebacks = false) {
+            var result = new Dictionary<string, string>();
+            result.AddValueIfTrue(nameof(testmode), testmode);
+            result.AddValueIfNotNullOrEmpty(nameof(profileId), profileId);
+            result.AddValueIfNotNullOrEmpty("include", this.BuildIncludeParameter(includeQrCode, includeRemainderDetails));
+            result.AddValueIfNotNullOrEmpty("embed", this.BuildEmbedParameter(embedRefunds, embedChargebacks));
+            return result;
+        }
+
+        private string BuildIncludeParameter(bool includeQrCode = false, bool includeRemainderDetails = false) {
+            var includeList = new List<string>();
+            includeList.AddValueIfTrue("details.qrCode", includeQrCode);
+            includeList.AddValueIfTrue("details.remainderDetails", includeRemainderDetails);
+            return includeList.ToIncludeParameter();
+        }
+
+        private string BuildEmbedParameter(bool embedRefunds = false, bool embedChargebacks = false)
+        {
+            var embedList = new List<string>();
+            embedList.AddValueIfTrue("refunds", embedRefunds);
+            embedList.AddValueIfTrue("chargebacks", embedChargebacks);
+            return embedList.ToIncludeParameter();
+        }
+    }
+
+    public interface IPaymentClient {
+        Task<PaymentResponse> CreatePaymentAsync(PaymentRequest paymentRequest, bool includeQrCode = false);
+
+        /// <summary>
+        ///		Retrieve a single payment object by its payment identifier.
+        /// </summary>
+        /// <param name="paymentId">The payment's ID, for example tr_7UhSN1zuXS.</param>
+        /// <param name="testmode">Oauth - Optional – Set this to true to get a payment made in test mode. If you omit this parameter, you can only retrieve live mode payments.</param>
+        /// <returns></returns>
+        Task<PaymentResponse> GetPaymentAsync(string paymentId, bool testmode = false, bool includeQrCode = false, bool includeRemainderDetails = false, bool embedRefunds = false, bool embedChargebacks = false);
+
+        /// <summary>
+        /// Some payment methods are cancellable for an amount of time, usually until the next day. Or as long as the payment status is open. Payments may be cancelled manually from the Dashboard, or automatically by using this endpoint.
+        /// </summary>
+        /// <param name="paymentId"></param>
+        /// <returns></returns>
+        Task DeletePaymentAsync(string paymentId);
+
+        /// <summary>
+        /// Retrieve all payments created with the current payment profile, ordered from newest to oldest.
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="limit"></param>
+        /// <param name="profileId"></param>
+        /// <param name="testmode"></param>
+        /// <returns></returns>
+		Task<ListResponse<PaymentResponse>> GetPaymentListAsync(string from = null, int? limit = null, string profileId = null, bool testmode = false, bool includeQrCode = false, bool embedRefunds = false, bool embedChargebacks = false);
+        Task<ListResponse<PaymentResponse>> GetPaymentListAsync(UrlObjectLink<ListResponse<PaymentResponse>> url);
+        Task<PaymentResponse> GetPaymentAsync(UrlObjectLink<PaymentResponse> url);
+        Task<PaymentResponse> UpdatePaymentAsync(string paymentId, PaymentUpdateRequest paymentUpdateRequest);
+    }
+}

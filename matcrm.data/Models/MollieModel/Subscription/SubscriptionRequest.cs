@@ -1,0 +1,16 @@
+﻿namespace matcrm.data.Models.MollieModel.Subscription {
+    public class SubscriptionRequest : SubscriptionUpdateRequest {
+        /// <summary>
+        /// Optional – The payment method used for this subscription, either forced on creation or null if any of the
+        /// customer's valid mandates may be used. See the matcrm.data.Models.MollieModel.Payment.PaymentMethod class for a full
+        /// list of known values.
+        /// </summary>
+        public string Method { get; set; }
+
+        /// <summary>
+        /// Adding an application fee allows you to charge the merchant for each payment in the subscription and 
+        /// transfer these amounts to your own account.
+        /// </summary>
+        public ApplicationFee ApplicationFee { get; set; }
+    }
+}
