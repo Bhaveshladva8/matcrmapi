@@ -65,10 +65,11 @@ stages:
         version: 7.x
         performMultiLevelLookup: true
         includePreviewVersions: true
+        installationPath: $(AGENT_TOOLSDIRECTORY)/dotnet
     - task: UseDotNet@2
       displayName: 'Install .NET Core runtime'
       inputs:
-        packageType: 'runtime'
+        packageType: runtime
         version: 7.x
         performMultiLevelLookup: true
         includePreviewVersions: true    
