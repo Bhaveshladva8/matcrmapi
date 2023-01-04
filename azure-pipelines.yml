@@ -1,5 +1,36 @@
+# # Docker
+# # Build a Docker image
+# # https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+# trigger:
+# - main
+
+# resources:
+# - repo: self
+
+# variables:
+#   tag: '$(Build.BuildId)'
+
+# stages:
+# - stage: Build
+#   displayName: Build image
+#   jobs:
+#   - job: Build
+#     displayName: Build
+#     pool:
+#       vmImage: ubuntu-latest   
+    
+#     steps:
+#     - task: Docker@2
+#       displayName: Build an image
+#       inputs:
+#         command: build
+#         buildContext: '$(Build.SourcesDirectory)/matcrm.api/'
+#         dockerfile: '$(Build.SourcesDirectory)/matcrm.api/Dockerfile'
+#         tags: |
+#           $(tag)
 # Docker
-# Build a Docker image
+# Build and push an image to Azure Container Registry
 # https://docs.microsoft.com/azure/devops/pipelines/languages/docker
 
 trigger:
@@ -9,23 +40,32 @@ resources:
 - repo: self
 
 variables:
+  # Container registry service connection established during pipeline creation
+  dockerRegistryServiceConnection: '51ab9b3a-91e7-4fc7-abf3-02ff83371b64'
+  imageRepository: 'bhaveshladvamatcrmapi'
+  containerRegistry: 'matefintiy.azurecr.io'
+  dockerfilePath: '$(Build.SourcesDirectory)/matcrm.api/Dockerfile'
   tag: '$(Build.BuildId)'
+
+  # Agent VM image name
+  vmImageName: 'ubuntu-latest'
 
 stages:
 - stage: Build
-  displayName: Build image
+  displayName: Build and push stage
   jobs:
   - job: Build
     displayName: Build
     pool:
-      vmImage: ubuntu-latest   
-    
+      vmImage: $(vmImageName)
     steps:
     - task: Docker@2
-      displayName: Build an image
+      displayName: Build and push an image to container registry
       inputs:
-        command: build
+        command: buildAndPush
+        repository: $(imageRepository)
+        dockerfile: $(dockerfilePath)
         buildContext: '$(Build.SourcesDirectory)/matcrm.api/'
-        dockerfile: '$(Build.SourcesDirectory)/matcrm.api/Dockerfile'
+        containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
           $(tag)
