@@ -24,6 +24,7 @@ stages:
       displayName: Build an image
       inputs:
         command: build
+        buildContext: '$(Build.SourcesDirectory)/matcrm.api/'
         dockerfile: '$(Build.SourcesDirectory)/matcrm.api/Dockerfile'
         tags: |
           $(tag)
