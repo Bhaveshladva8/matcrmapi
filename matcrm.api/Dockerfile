@@ -9,7 +9,7 @@ COPY ["matcrm.api.csproj", "matcrm.api/"]
 # COPY ["matcrm.authentication.jwt.csproj", "matcrm.authentication.jwt/"]  
 # COPY ["matcrm.service.csproj", "matcrm.service/"]  
 # COPY ["matcrm.data.csproj", "matcrm.data/"]  
-RUN dotnet restore "matcrm.api.csproj"  
+# RUN dotnet restore "matcrm.api.csproj"  
 COPY . .  
 WORKDIR "/src/matcrm.api"  
 RUN dotnet build "matcrm.api.csproj" -c Release -o /app/build 
