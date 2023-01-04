@@ -72,11 +72,11 @@ stages:
         version: 7.x
         performMultiLevelLookup: true
         includePreviewVersions: true    
-    - task: Docker@2
-      displayName: Login to ACR
-      inputs:
-        command: login
-        containerRegistry: $(dockerRegistryServiceConnection)       
+    # - task: Docker@2
+    #   displayName: Login to ACR
+    #   inputs:
+    #     command: login
+    #     containerRegistry: $(dockerRegistryServiceConnection)       
     - task: Docker@2
       displayName: Build and push an image to container registry
       inputs:
