@@ -62,9 +62,16 @@ stages:
     - task: UseDotNet@2
       displayName: 'Install .NET Core SDK'
       inputs:
-        version: 7.x
+        version: 7.0.1
         performMultiLevelLookup: true
         includePreviewVersions: true
+    - task: UseDotNet@2
+      displayName: 'Install .NET Core runtime'
+      inputs:
+        packageType: runtime
+        version: 7.0.1
+        performMultiLevelLookup: true
+        includePreviewVersions: true    
     - task: Docker@2
       displayName: Build and push an image to container registry
       inputs:
