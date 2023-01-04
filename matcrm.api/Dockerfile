@@ -12,9 +12,9 @@ COPY ["matcrm.api.csproj", "matcrm.api/"]
 RUN dotnet restore "matcrm.api/matcrm.api.csproj"  
 COPY . .  
 WORKDIR "/src/matcrm.api"  
-RUN dotnet build "matcrm.api.csproj" -c Release -o /app/build 
+#RUN dotnet build "matcrm.api.csproj" -c Release -o /app/build 
 
-FROM build AS publish  
+#FROM build AS publish  
 RUN dotnet publish "matcrm.api.csproj" -c Release -o /app/publish 
 
 FROM base AS final  
