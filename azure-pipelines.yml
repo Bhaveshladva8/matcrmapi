@@ -59,6 +59,10 @@ stages:
     pool:
       vmImage: $(vmImageName)
     steps:
+    - task: DotNetCoreInstaller@0
+      inputs:
+        packageType: 'sdk' # 'runtime' | 'sdk'. Required. Package to install. Default: sdk.
+        version: '7.0'
     - task: Docker@2
       displayName: Build and push an image to container registry
       inputs:
