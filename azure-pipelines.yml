@@ -20,6 +20,22 @@ stages:
     pool:
       vmImage: ubuntu-latest
     steps:
+    - task: DotNetCoreCLI@2
+      displayName: Build
+      inputs:
+        command: 'build'
+        arguments: --output $(System.DefaultWorkingDirectory)/publish_output --configuration $(buildConfiguration)
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: publish
+        publishWebProjects: true
+        arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactsStagingDirectory)/$(Build.BuildId).zip'
+        zipAfterPublish: true
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: $(Build.ArtifactsStagingDirectory)/$(Build.BuildId).zip
+        ArtifactName: drop
+    steps:
     - task: Docker@2
       displayName: Build an image
       inputs:
