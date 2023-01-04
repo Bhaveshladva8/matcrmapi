@@ -6,9 +6,9 @@ EXPOSE 443
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build  
 WORKDIR /src  
 COPY ["matcrm.api.csproj", "matcrm.api/"]  
-COPY ["matcrm.authentication.jwt.csproj", "matcrm.authentication.jwt/"]  
-COPY ["matcrm.service.csproj", "matcrm.service/"]  
-COPY ["matcrm.data.csproj", "matcrm.data/"]  
+# COPY ["matcrm.authentication.jwt.csproj", "matcrm.authentication.jwt/"]  
+# COPY ["matcrm.service.csproj", "matcrm.service/"]  
+# COPY ["matcrm.data.csproj", "matcrm.data/"]  
 RUN dotnet restore "matcrm.api.csproj"  
 COPY . .  
 WORKDIR "/src/matcrm.api"  
